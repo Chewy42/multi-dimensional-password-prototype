@@ -1,7 +1,50 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
 const app = express();
+const sqlite3 = require("sqlite3").verbose();
+const passport = require('passport');
+const session = require('express-session');
+
+app.use(session({
+  secret: 'fowler',
+  resave: false,
+  saveUninitialized: true,
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+let db = new sqlite3.Database("./database/demo.db", (err) => {
+  if (err) {
+    return console.error(err.message);
+  }
+  console.log("Connected to the SQlite database.");
+});
+
+db.run(`
+  CREATE TABLE users(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name VARCHAR(255),
+  email VARCHAR(255),
+  password VARCHAR(255));`,
+  (err) => {
+    if (err) {
+      return console.log("Users table identified.");
+    }
+    console.log("Users table created.");
+  }
+);
+db.close((err) => {
+  if (err) return console.error(err.message);
+  console.log("Close the database connection.");
+});
+
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+  })
+);
+app.use(express.json());
 
 require("dotenv").config();
 
