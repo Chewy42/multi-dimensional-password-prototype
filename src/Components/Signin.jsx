@@ -5,6 +5,7 @@ import {
   AiOutlineUser,
   AiOutlineClose,
   AiOutlinePlus,
+  AiOutlineArrowDown,
 } from "react-icons/ai";
 import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
@@ -181,7 +182,7 @@ const SignIn = () => {
             </p>
             {/* Password Sequence Section */}
 
-            <div className="flex flex-col justify-center align-middle p-4">
+            <div className="flex flex-col justify-center align-middle px-4">
               {passwordSequence.map((input, index) => (
                 <React.Fragment key={input.id}>
                   <div
@@ -248,7 +249,7 @@ const SignIn = () => {
                     </div>
                   </div>
                   {index < passwordSequence.length - 1 && (
-                    <AiOutlinePlus className="w-6 h-6 mx-auto" />
+                    <AiOutlineArrowDown className="w-6 h-6 mx-auto my-0" />
                   )}
                 </React.Fragment>
               ))}

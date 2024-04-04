@@ -5,6 +5,7 @@ import {
   AiOutlineUser,
   AiOutlineClose,
   AiOutlinePlus,
+  AiOutlineArrowDown,
 } from "react-icons/ai";
 import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
@@ -92,7 +93,6 @@ const SignUp = () => {
     event.preventDefault();
     let concatenatedSequence = "";
 
-    // Helper function to convert file to base64 string
     const readFileAsBase64 = (file) =>
       new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -100,8 +100,6 @@ const SignUp = () => {
         reader.onerror = reject;
         reader.readAsDataURL(file);
       });
-
-    // Process each element in the passwordSequence
     for (const element of passwordSequence) {
       if (element.type === "text" && element.value) {
         concatenatedSequence += element.value;
@@ -111,7 +109,7 @@ const SignUp = () => {
           concatenatedSequence += base64String;
         } catch (error) {
           console.error("Error reading file:", error);
-          return; // Exit the function if file reading fails
+          return;
         }
       }
     }
@@ -135,7 +133,6 @@ const SignUp = () => {
     console.log(result);
   };
 
-  // Event handlers
   const handleDragStart = (e, index) => {
     e.dataTransfer.setData("text/plain", index);
   };
@@ -147,7 +144,7 @@ const SignUp = () => {
   };
 
   const handleDragOver = (e) => {
-    e.preventDefault(); // Necessary to allow dropping
+    e.preventDefault();
   };
 
   return (
@@ -158,17 +155,17 @@ const SignUp = () => {
         {/* SIGNUP CONTAINER */}
         <div className="mx-auto mt-[150px] mb-auto py-[36px] w-full sm:w-[50%] bg-white rounded-[28px] border-2">
           {/* Error Message Display */}
-          {errorMessage && (
+          {/* {errorMessage && (
             <div className="px-4 py-2 bg-red-500 text-white text-sm rounded-md absolute top-20 left-1/2 transform -translate-x-1/2">
               {errorMessage}
             </div>
-          )}
+          )} */}
           <h2 className="text-3xl font-bold text-center text-primary mb-6 select-none">
             Multi-Dimensional Authentication Prototype
           </h2>
 
           <form onSubmit={handleSignup}>
-            <div className="mb-4 relative w-[50%] mx-auto">
+            <div className="relative w-[50%] mx-auto">
               <label
                 htmlFor="name"
                 className="block text-primary font-semibold mb-2 select-none"
@@ -188,7 +185,7 @@ const SignUp = () => {
               <AiOutlineUser className="absolute top-[44px] left-[10px] w-[20px] h-auto" />
             </div>
 
-            <div className="mb-4 relative w-[50%] mx-auto">
+            <div className="my-4 relative w-[50%] mx-auto">
               <label
                 htmlFor="email"
                 className="block text-primary font-semibold mb-2 select-none"
@@ -211,7 +208,7 @@ const SignUp = () => {
             </p>
             {/* Password Sequence Section */}
 
-            <div className="flex flex-col justify-center align-middle p-4">
+            <div className="flex flex-col justify-center align-middle px-4">
               {passwordSequence.map((input, index) => (
                 <React.Fragment key={input.id}>
                   <div
@@ -278,7 +275,7 @@ const SignUp = () => {
                     </div>
                   </div>
                   {index < passwordSequence.length - 1 && (
-                    <AiOutlinePlus className="w-6 h-6 mx-auto" />
+                    <AiOutlineArrowDown className="w-6 h-6 mx-auto my-0" />
                   )}
                 </React.Fragment>
               ))}
@@ -286,7 +283,7 @@ const SignUp = () => {
 
             {/* Add More Password Elements Button */}
             {passwordSequence.length < 4 && (
-              <div className="flex justify-center w-full px-4 pb-4 transition-all ease-linear duration-300">
+              <div className="flex justify-center w-full px-4 pb-2 transition-all ease-linear duration-300">
                 <button
                   onClick={handleAddClicked}
                   className={`flex justify-center items-center w-[50%] h-10 rounded-lg transition duration-300 ease-in-out bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold`}

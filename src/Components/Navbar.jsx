@@ -1,34 +1,44 @@
-import React from "react";
-import { useNavigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { useLocation, Link } from 'react-router-dom';
+import { AiOutlineHome } from 'react-icons/ai';
 
 function Navbar() {
-    const navigate = useNavigate();
-    const location = useLocation();
+  const location = useLocation();
 
-    const navigateToSignIn = () => {
-        navigate('/signin');
-    }
+  return (
+    <div className="fixed inset-x-0 top-0 flex items-center justify-between px-4 bg-white shadow-md h-16 z-10">
+      <div className="flex-1"></div>
+      <div className="absolute left-1/2 transform -translate-x-1/2">
+        {location.pathname !== '/' && (
+          <Link
+            to="/"
+            className="flex items-center justify-center w-12 h-12 text-xl rounded-full hover:bg-gray-100 transition-all ease-linear duration-300"
+          >
+            <AiOutlineHome />
+          </Link>
+        )}
+      </div>
 
-    const navigateToSignUp = () => {
-        navigate('/signup');
-    }
-
-    return (
-        <nav className="navbar-container w-screen h-[69px] flex justify-right align-middle">
-            {location.pathname !== '/signin' && (
-                <button onClick={navigateToSignIn}
-                        className="w-32 h-[50%] bg-gray-800 rounded d mr-5 ml-auto my-auto text-center text-white shadow-xl border-none">
-                    Sign In
-                </button>
-            )}
-            {location.pathname !== '/signup' && (
-                <button onClick={navigateToSignUp}
-                        className="w-32 h-[50%] bg-gray-800 rounded ml-auto mr-5 my-auto text-center text-white shadow-xl border-none">
-                    Sign Up
-                </button>
-            )}
-        </nav>
-    )
+      <div className="flex items-center justify-end flex-1 space-x-4">
+        {location.pathname !== '/signin' && (
+          <Link
+            to="/signin"
+            className="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded hover:bg-gray-700 transition-all ease-linear duration-150"
+          >
+            Sign In
+          </Link>
+        )}
+        {location.pathname !== '/signup' && (
+          <Link
+            to="/signup"
+            className="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded hover:bg-gray-700 transition-all ease-linear duration-150"
+          >
+            Sign Up
+          </Link>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default Navbar;
