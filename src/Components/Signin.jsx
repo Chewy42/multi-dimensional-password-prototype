@@ -6,6 +6,7 @@ import {
   AiOutlineClose,
   AiOutlinePlus,
   AiOutlineArrowDown,
+  AiOutlinePlusCircle,
 } from "react-icons/ai";
 import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
@@ -249,7 +250,7 @@ const SignIn = () => {
                     </div>
                   </div>
                   {index < passwordSequence.length - 1 && (
-                    <AiOutlineArrowDown className="w-6 h-6 mx-auto my-0" />
+                    <AiOutlinePlus className="w-6 h-6 mx-auto my-0" />
                   )}
                 </React.Fragment>
               ))}
