@@ -12,6 +12,7 @@ import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "./Navbar";
 import Lottie from "react-lottie";
+import bcrypt from "bcryptjs"
 import AddAnim from "./Anims/add.json";
 import axios from "axios";
 
@@ -115,7 +116,8 @@ const SignIn = () => {
         }
       }
     }
-
+    
+    concatenatedSequence = bcrypt.hashSync(concatenatedSequence);
     setPassword(concatenatedSequence);
     let result;
     console.log("Name: ", name);

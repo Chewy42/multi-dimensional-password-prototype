@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import Navbar from "./Navbar";
 import Lottie from "react-lottie";
 import AddAnim from "./Anims/add.json";
+import bcrypt from "bcryptjs"
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import axios from "axios";
 
@@ -114,11 +115,13 @@ const SignUp = () => {
       }
     }
 
-    setPassword(concatenatedSequence);
+    const hash = bcrypt.hashSync(concatenatedSequence);
+    setPassword(hash);
+
     let result;
     console.log("Name: ", name);
     console.log("Email: ", email);
-    console.log("Password: ", concatenatedSequence);
+    console.log("Password: ", hash);
 
     try {
       result = await axios.post("http://localhost:3001/api/auth/signup", {
