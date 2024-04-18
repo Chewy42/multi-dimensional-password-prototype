@@ -8,6 +8,7 @@ import {
   AiOutlineArrowDown,
   AiOutlineRight,
   AiOutlineEye,
+  AiOutlineEyeInvisible,
 } from "react-icons/ai";
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
@@ -28,6 +29,8 @@ const SignUp = () => {
   const [showLoadingIcon, setShowLoadingIcon] = useState(false);
 
   const [constructedPassword, setConstructedPassword] = useState("");
+  const [constructedPasswordHidden, setConstructedPasswordHidden] =
+    useState(true);
 
   useEffect(() => {
     constructPassword();
@@ -243,105 +246,119 @@ const SignUp = () => {
             </p>
             {/* Password Sequence Section */}
 
-            <div className="flex justify-start align-middle h-[150px] bg-gray-100 m-4 p-2 rounded-[12px]">
-              {passwordSequence.map((input, index) => (
-                <React.Fragment key={input.id}>
-                  <div
-                    key={input.id}
-                    draggable
-                    onDragStart={(e) =>
-                      e.dataTransfer.setData("text/plain", index)
-                    }
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      const startIndex = parseInt(
-                        e.dataTransfer.getData("text/plain"),
-                        10
-                      );
-                      moveItem(startIndex, index);
-                    }}
-                    className="relative flex flex-col justify-start items-center w-full md:w-[240px] p-2 border rounded-lg shadow-lg my-4 bg-white hover:shadow-2xl transition-all ease-linear duration-300 hover:cursor-pointer"
-                  >
-                    <button
-                      onClick={() => handleDeleteSequence(index)}
-                      className="absolute top-0 left-0 m-2 text-red-500 hover:text-red-700"
+            <div className="">
+              <div className="flex justify-start align-middle h-[150px] bg-gray-100 m-4 p-2 rounded-[12px]">
+                {passwordSequence.map((input, index) => (
+                  <React.Fragment key={input.id}>
+                    <div
+                      key={input.id}
+                      draggable
+                      onDragStart={(e) =>
+                        e.dataTransfer.setData("text/plain", index)
+                      }
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        const startIndex = parseInt(
+                          e.dataTransfer.getData("text/plain"),
+                          10
+                        );
+                        moveItem(startIndex, index);
+                      }}
+                      className="relative flex flex-col justify-start items-center w-full md:w-[240px] md:min-w-[240px] p-2 border rounded-lg shadow-lg my-4 bg-white hover:shadow-2xl transition-all ease-linear duration-300 hover:cursor-pointer"
                     >
-                      <AiOutlineClose className="w-6 h-6" />
-                    </button>
-                    <label
-                      htmlFor={`sequence${index}_xx`}
-                      className="block text-primary font-semibold mb-2 select-none"
-                    >
-                      Sequence Password {index + 1}
-                    </label>
-                    {/* Conditional rendering based on input type */}
-                    <div className="relative border rounded-lg shadow-sm w-full group">
-                      <AiOutlineLock className="absolute top-3 left-3 w-5 h-5 text-gray-400 group-hover:text-black" />
+                      <button
+                        onClick={() => handleDeleteSequence(index)}
+                        className="absolute top-0 left-0 m-2 text-red-500 hover:text-red-700"
+                      >
+                        <AiOutlineClose className="w-6 h-6" />
+                      </button>
+                      <label
+                        htmlFor={`sequence${index}_xx`}
+                        className="block text-primary font-semibold mb-2 select-none"
+                      >
+                        Sequence Password {index + 1}
+                      </label>
                       {/* Conditional rendering based on input type */}
-                      {input.type === "text" ? (
-                        <input
-                          type="text"
-                          id={`sequence${index}`}
-                          onChange={(e) =>
-                            handleInputChange(index, e.target.value)
-                          }
-                          className="pl-10 pr-3 py-2 w-full h-[45px] border rounded focus:outline-none focus:border-primary select-none hover:cursor-pointer hover:outline "
-                          value={input.value || ""}
-                        />
-                      ) : (
-                        <>
-                          <AiOutlineUpload className="absolute top-3 left-10 w-5 h-5 text-gray-400" />
+                      <div className="relative border rounded-lg shadow-sm w-full group">
+                        <AiOutlineLock className="absolute top-3 left-3 w-5 h-5 text-gray-400 group-hover:text-black" />
+                        {/* Conditional rendering based on input type */}
+                        {input.type === "text" ? (
                           <input
-                            type="file"
+                            type="text"
                             id={`sequence${index}`}
                             onChange={(e) =>
-                              handleInputChange(index, e.target.files[0])
+                              handleInputChange(index, e.target.value)
                             }
-                            className="pl-16 pr-3 py-2 w-full h-[55px] opacity-0 absolute inset-0 z-30 cursor-pointer"
+                            className="pl-10 pr-3 py-2 w-full h-[45px] border rounded focus:outline-none focus:border-primary select-none hover:cursor-pointer hover:outline "
+                            value={input.value || ""}
                           />
-                          <div className="pl-16 pr-3 py-2 w-full relative border-[3px] border-transparent hover:border-black z-20 rounded-lg ">
-                            <span className="text-gray-500 font-semibold">
-                              {input.value ? input.value.name : "Upload File"}
-                            </span>
-                          </div>
-                        </>
+                        ) : (
+                          <>
+                            <AiOutlineUpload className="absolute top-3 left-10 w-5 h-5 text-gray-400" />
+                            <input
+                              type="file"
+                              id={`sequence${index}`}
+                              onChange={(e) =>
+                                handleInputChange(index, e.target.files[0])
+                              }
+                              className="pl-16 pr-3 py-2 w-full h-[55px] opacity-0 absolute inset-0 z-30 cursor-pointer"
+                            />
+                            <div className="pl-16 pr-3 py-2 w-full relative border-[3px] border-transparent hover:border-black z-20 rounded-lg ">
+                              <span className="text-gray-500 font-semibold">
+                                {input.value ? input.value.name : "Upload File"}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {index < passwordSequence.length - 1 && (
+                      <AiOutlinePlus className="mx-2 my-auto" />
+                    )}
+                  </React.Fragment>
+                ))}
+                {/* Add More Password Elements Button */}
+                {passwordSequence.length < 4 && (
+                  <div className="flex justify-center w-[75px] h-[75px] p-2 transition-all ease-linear duration-300 my-auto ml-4">
+                    <button
+                      onClick={handleAddClicked}
+                      className={`flex justify-center items-center w-[100%] h-[100%] rounded-lg transition duration-300 ease-in-out bg-white shadow-lg hover:shadow-2xl border text-gray-800 font-bold hover:bg-green-500 group`}
+                    >
+                      {/* Lottie animation integration for a smoother interaction */}
+                      <p className="mx-auto mb-2 font-medium text-black group-hover:text-white transition-all ease-linear duration-300 text-[40px] text-center">
+                        +
+                      </p>
+                    </button>
+                  </div>
+                )}
+                <div className="w-min my-auto ml-4">
+                  <p className="text-[42px] font-medium mb-2">=</p>
+                </div>
+              </div>
+
+              <div className="w-[400px] flex justify-start align-middle h-[150px] bg-gray-100 m-auto p-2 rounded-[12px]">
+                <div className="w-[100%] h-[100%] my-auto flex flex-col">
+                  <div className="flex justify-center align-middle">
+                    <div className="flex justify-center align-middle">
+                      <p className="font-medium text-[16px] select-none">
+                        Your Password
+                      </p>
+                      {constructedPasswordHidden ? (
+                        <AiOutlineEyeInvisible
+                          className="ml-2 w-4 h-4 hover:cursor-pointer my-auto"
+                          onClick={() => setConstructedPasswordHidden(false)}
+                        />
+                      ) : (
+                        <AiOutlineEye
+                          className="ml-2 w-4 h-4 hover:cursor-pointer my-auto"
+                          onClick={() => setConstructedPasswordHidden(true)}
+                        />
                       )}
                     </div>
                   </div>
-
-                  {index < passwordSequence.length - 1 && (
-                    <AiOutlinePlus className="mx-2 my-auto" />
-                  )}
-                </React.Fragment>
-              ))}
-              {/* Add More Password Elements Button */}
-              {passwordSequence.length < 4 && (
-                <div className="flex justify-center w-[75px] h-[75px] p-2 transition-all ease-linear duration-300 my-auto ml-4">
-                  <button
-                    onClick={handleAddClicked}
-                    className={`flex justify-center items-center w-[100%] h-[100%] rounded-lg transition duration-300 ease-in-out bg-white shadow-lg hover:shadow-2xl border text-gray-800 font-bold hover:bg-green-500 group`}
-                  >
-                    {/* Lottie animation integration for a smoother interaction */}
-                    <p className="mx-auto mb-2 font-medium text-black group-hover:text-white transition-all ease-linear duration-300 text-[40px] text-center">
-                      +
-                    </p>
-                  </button>
-                </div>
-              )}
-
-              <div className="w-[400px] h-[100%] flex justify-start align-middl ml-4">
-                <div className="w-min my-auto">
-                  <p className="text-[42px] font-medium mb-2">=</p>
-                </div>
-                <div className="w-[100%] h-[100%] ml-2 my-auto flex flex-col">
-                  <div className="flex justify-start align-middle">
-                    <p>Your Password</p>
-                    <AiOutlineEye className="ml-2 w-4 h-4 my-auto hover:cursor-pointer" />
-                  </div>
-                  <p className="bg-white w-[100%] h-[100%] overflow-auto whitespace-normal">
-  {constructedPassword}
-</p>
+                  <input disabled type={`${constructedPasswordHidden ? "password" : "text"}`} className=" bg-white w-[100%] h-[100%] overflow-wrap whitespace-normal " value={constructedPassword} />
                 </div>
               </div>
             </div>
