@@ -296,9 +296,9 @@ const SignUp = () => {
                               onChange={(e) =>
                                 handleInputChange(index, e.target.files[0])
                               }
-                              className="pl-16 pr-3 py-2 w-full h-[55px] opacity-0 absolute inset-0 z-30 cursor-pointer"
+                              className="pl-16 pr-3 py-2 w-full h-[55px] opacity-0 absolute inset-0 z-40 cursor-pointer border-none"
                             />
-                            <div className="pl-16 pr-3 py-2 w-full relative border-[3px] border-transparent group-hover:border-green-500 z-40 rounded-lg group-hover:border-dashed group">
+                            <div className="pl-16 pr-3 py-2 w-full relative border-[3px] border-transparent group-hover:border-green-500 z-30 rounded-lg group-hover:border-dashed group">
                               <p className="text-gray-500 font-semibold overflow-hidden w-[100%] group-hover:text-black">
                                 {input.value ? input.value.name : "Upload File"}
                               </p>
@@ -361,7 +361,7 @@ const SignUp = () => {
                 </div>
               </div>
 
-              <div className="w-[400px] flex justify-start align-middle h-[150px] bg-gray-100 m-auto p-2 rounded-[12px] mt-4">
+              <div className="w-[400px] flex justify-start align-middle h-[150px] bg-gray-100 m-auto p-2 rounded-[12px] my-4">
                 <div className="w-[100%] h-[100%] my-auto flex flex-col">
                   <div className="flex justify-center align-middle">
                     <div className="flex justify-center align-middle">
@@ -459,7 +459,7 @@ const SignUp = () => {
 
               <button
                 type="submit"
-                className="select-none bg-accent hover:scale-[103%] transition-all ease-linear duration-200 text-black hover:font-bold px-6 py-3 mt-4 rounded-md shadow-md w-[100%] mx-auto"
+                className="select-none bg-green-500 hover:scale-[103%] transition-all ease-linear duration-200 text-white font-medium px-6 py-3 mt-4 rounded-md shadow-md w-[100%] mx-auto hover:shadow-xl"
               >
                 Sign Up
               </button>
