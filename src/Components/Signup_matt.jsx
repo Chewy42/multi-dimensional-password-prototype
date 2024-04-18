@@ -6,10 +6,8 @@ import {
   AiOutlineClose,
   AiOutlinePlus,
   AiOutlineArrowDown,
-  AiOutlineRight,
-  AiOutlineEye,
 } from "react-icons/ai";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "./Navbar";
 import Lottie from "react-lottie";
@@ -17,46 +15,13 @@ import AddAnim from "./Anims/add.json";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import axios from "axios";
 
-const SignUp = () => {
+const SignUpMatt = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [passwordSequence, setPasswordSequence] = useState([]);
   const [password, setPassword] = useState("");
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-  const [showLoadingIcon, setShowLoadingIcon] = useState(false);
-
-  const [constructedPassword, setConstructedPassword] = useState("");
-
-  useEffect(() => {
-    constructPassword();
-  }, [passwordSequence]);
-
-  const constructPassword = async () => {
-    let concatenatedSequence = "";
-    const readFileAsBase64 = (file) =>
-      new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    for (const element of passwordSequence) {
-      if (element.type === "text" && element.value) {
-        concatenatedSequence += element.value;
-      } else if (element.type === "file" && element.value) {
-        try {
-          const base64String = await readFileAsBase64(element.value);
-          concatenatedSequence += base64String;
-        } catch (error) {
-          console.error("Error reading file:", error);
-          return;
-        }
-      }
-    }
-    setConstructedPassword(concatenatedSequence);
-  };
 
   const addAnimationRef = useRef(null);
 
@@ -188,7 +153,7 @@ const SignUp = () => {
       {/* CONTAINER THAT CENTERS SIGNUP CONTAINER */}
       <main className="flex-grow bg-[#f0f4f9] relative flex flex-col justify-center align-top">
         {/* SIGNUP CONTAINER */}
-        <div className="mx-auto mt-[150px] mb-auto py-[36px] w-full sm:w-[70%] bg-white rounded-[28px] border-2">
+        <div className="mx-auto mt-[150px] mb-auto py-[36px] w-full sm:w-[50%] bg-white rounded-[28px] border-2">
           {/* Error Message Display */}
           {/* {errorMessage && (
             <div className="px-4 py-2 bg-red-500 text-white text-sm rounded-md absolute top-20 left-1/2 transform -translate-x-1/2">
@@ -239,11 +204,11 @@ const SignUp = () => {
               <AiOutlineMail className="absolute top-[44px] left-[10px] w-[20px] h-auto" />
             </div>
             <p className="block text-primary font-semibold select-none mb-2 relative w-[50%] mx-auto">
-              Construct Password Sequence:
+              Password Sequence:
             </p>
             {/* Password Sequence Section */}
 
-            <div className="flex justify-start align-middle h-[150px] bg-gray-100 m-4 p-2 rounded-[12px]">
+            <div className="flex flex-col justify-center align-middle px-4">
               {passwordSequence.map((input, index) => (
                 <React.Fragment key={input.id}>
                   <div
@@ -261,7 +226,7 @@ const SignUp = () => {
                       );
                       moveItem(startIndex, index);
                     }}
-                    className="relative flex flex-col justify-start items-center w-full md:w-[240px] p-2 border rounded-lg shadow-lg my-4 bg-white hover:shadow-2xl transition-all ease-linear duration-300 hover:cursor-pointer"
+                    className="relative flex flex-col items-center w-full md:w-1/2 p-2 border rounded-lg shadow-sm my-4 mx-auto"
                   >
                     <button
                       onClick={() => handleDeleteSequence(index)}
@@ -270,14 +235,14 @@ const SignUp = () => {
                       <AiOutlineClose className="w-6 h-6" />
                     </button>
                     <label
-                      htmlFor={`sequence${index}_xx`}
+                      htmlFor={`sequence${index}`}
                       className="block text-primary font-semibold mb-2 select-none"
                     >
                       Sequence Password {index + 1}
                     </label>
                     {/* Conditional rendering based on input type */}
-                    <div className="relative border rounded-lg shadow-sm w-full group">
-                      <AiOutlineLock className="absolute top-3 left-3 w-5 h-5 text-gray-400 group-hover:text-black" />
+                    <div className="relative border rounded-lg shadow-sm w-full">
+                      <AiOutlineLock className="absolute top-3 left-3 w-5 h-5 text-gray-400" />
                       {/* Conditional rendering based on input type */}
                       {input.type === "text" ? (
                         <input
@@ -286,7 +251,7 @@ const SignUp = () => {
                           onChange={(e) =>
                             handleInputChange(index, e.target.value)
                           }
-                          className="pl-10 pr-3 py-2 w-full h-[45px] border rounded focus:outline-none focus:border-primary select-none hover:cursor-pointer hover:outline "
+                          className="pl-10 pr-3 py-2 w-full border rounded focus:outline-none focus:border-primary"
                           value={input.value || ""}
                         />
                       ) : (
@@ -298,9 +263,9 @@ const SignUp = () => {
                             onChange={(e) =>
                               handleInputChange(index, e.target.files[0])
                             }
-                            className="pl-16 pr-3 py-2 w-full h-[55px] opacity-0 absolute inset-0 z-30 cursor-pointer"
+                            className="pl-16 pr-3 py-2 w-full opacity-0 absolute inset-0 z-10 cursor-pointer"
                           />
-                          <div className="pl-16 pr-3 py-2 w-full relative border-[3px] border-transparent hover:border-black z-20 rounded-lg ">
+                          <div className="pl-16 pr-3 py-2 w-full relative z-0">
                             <span className="text-gray-500 font-semibold">
                               {input.value ? input.value.name : "Upload File"}
                             </span>
@@ -309,42 +274,31 @@ const SignUp = () => {
                       )}
                     </div>
                   </div>
-
                   {index < passwordSequence.length - 1 && (
-                    <AiOutlinePlus className="mx-2 my-auto" />
+                    <AiOutlineArrowDown className="w-6 h-6 mx-auto my-0" />
                   )}
                 </React.Fragment>
               ))}
-              {/* Add More Password Elements Button */}
-              {passwordSequence.length < 4 && (
-                <div className="flex justify-center w-[75px] h-[75px] p-2 transition-all ease-linear duration-300 my-auto ml-4">
-                  <button
-                    onClick={handleAddClicked}
-                    className={`flex justify-center items-center w-[100%] h-[100%] rounded-lg transition duration-300 ease-in-out bg-white shadow-lg hover:shadow-2xl border text-gray-800 font-bold hover:bg-green-500 group`}
-                  >
-                    {/* Lottie animation integration for a smoother interaction */}
-                    <p className="mx-auto mb-2 font-medium text-black group-hover:text-white transition-all ease-linear duration-300 text-[40px] text-center">
-                      +
-                    </p>
-                  </button>
-                </div>
-              )}
-
-              <div className="w-[400px] h-[100%] flex justify-start align-middl ml-4">
-                <div className="w-min my-auto">
-                  <p className="text-[42px] font-medium mb-2">=</p>
-                </div>
-                <div className="w-[100%] h-[100%] ml-2 my-auto flex flex-col">
-                  <div className="flex justify-start align-middle">
-                    <p>Your Password</p>
-                    <AiOutlineEye className="ml-2 w-4 h-4 my-auto hover:cursor-pointer" />
-                  </div>
-                  <p className="bg-white w-[100%] h-[100%] overflow-auto whitespace-normal">
-  {constructedPassword}
-</p>
-                </div>
-              </div>
             </div>
+
+            {/* Add More Password Elements Button */}
+            {passwordSequence.length < 4 && (
+              <div className="flex justify-center w-full px-4 pb-2 transition-all ease-linear duration-300">
+                <button
+                  onClick={handleAddClicked}
+                  className={`flex justify-center items-center w-[50%] h-10 rounded-lg transition duration-300 ease-in-out bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold`}
+                >
+                  {/* Lottie animation integration for a smoother interaction */}
+                  <Lottie
+                    ref={addAnimationRef}
+                    options={addAnimOptions}
+                    height={40}
+                    width={40}
+                    onClick={() => handleAddAnimation()}
+                  />
+                </button>
+              </div>
+            )}
 
             {/* Modal Presentation */}
             {showAddMenu && (
@@ -393,16 +347,6 @@ const SignUp = () => {
                 </div>
               </div>
             )}
-            {/* 
-            <div className="flex flex-col justfiy-center align-middle w-[50%] mx-auto">
-              <button
-                className={`flex justify-center items-center] h-10 rounded-lg transition duration-300 ease-linear bg-gray-200 text-gray-800 font-bold hover:bg-green-500 group `}
-              >
-                <p className="m-auto text-black font-medium group-hover:text-white ">
-                  Combine Sequence Into One Password
-                </p>
-              </button>
-            </div> */}
 
             <div className="flex flex-col justfiy-center align-middle w-[50%] mx-auto">
               <span className="relative select-none mr-auto">
@@ -426,4 +370,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default SignUpMatt;
