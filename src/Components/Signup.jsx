@@ -32,6 +32,9 @@ const SignUp = () => {
   const [constructedPasswordHidden, setConstructedPasswordHidden] =
     useState(true);
 
+  const [hashedPass, setHashedPass] = useState("");
+  const [hashPassHidden, setHashPassHidden] = useState(true);
+
   useEffect(() => {
     constructPassword();
   }, [passwordSequence]);
@@ -59,6 +62,23 @@ const SignUp = () => {
       }
     }
     setConstructedPassword(concatenatedSequence);
+  };
+
+  useEffect(() => {
+    constructHash();
+  }, [constructedPassword]);
+
+
+  const constructHash = () => {
+    let tempHashedPass = "";
+    let passLength = constructedPassword.length; // shrink down to 12 characters by finding the length, splitting it into 12 character chunks, and taking the first character of each chunk
+    let chunkSize = Math.ceil(passLength / 12);
+
+    for (let i = 0; i < passLength; i += chunkSize) {
+      tempHashedPass += constructedPassword.charAt(i);
+    }
+
+    setHashedPass(tempHashedPass);
   };
 
   const addAnimationRef = useRef(null);
@@ -129,40 +149,14 @@ const SignUp = () => {
 
   const handleSignup = async (event) => {
     event.preventDefault();
-    let concatenatedSequence = "";
 
-    const readFileAsBase64 = (file) =>
-      new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    for (const element of passwordSequence) {
-      if (element.type === "text" && element.value) {
-        concatenatedSequence += element.value;
-      } else if (element.type === "file" && element.value) {
-        try {
-          const base64String = await readFileAsBase64(element.value);
-          concatenatedSequence += base64String;
-        } catch (error) {
-          console.error("Error reading file:", error);
-          return;
-        }
-      }
-    }
-
-    setPassword(concatenatedSequence);
     let result;
-    console.log("Name: ", name);
-    console.log("Email: ", email);
-    console.log("Password: ", concatenatedSequence);
 
     try {
       result = await axios.post("http://localhost:3001/api/auth/signup", {
         name: name,
         email: email,
-        password: concatenatedSequence,
+        password: constructedPassword,
       });
     } catch (error) {
       setErrorMessage("An error occurred during signup. Please try again.");
@@ -265,7 +259,7 @@ const SignUp = () => {
                         );
                         moveItem(startIndex, index);
                       }}
-                      className="relative flex flex-col justify-start items-center w-full md:w-[240px] md:min-w-[240px] p-2 border rounded-lg shadow-lg my-4 bg-white hover:shadow-2xl transition-all ease-linear duration-300 hover:cursor-pointer"
+                      className="relative flex flex-col justify-start items-center w-full md:w-[240px] md:min-w-[240px] p-2 border rounded-lg shadow-lg my-4 bg-white hover:shadow-2xl transition-all ease-linear duration-300 hover:cursor-pointer group hover:scale-[101.5%]"
                     >
                       <button
                         onClick={() => handleDeleteSequence(index)}
@@ -295,7 +289,7 @@ const SignUp = () => {
                           />
                         ) : (
                           <>
-                            <AiOutlineUpload className="absolute top-3 left-10 w-5 h-5 text-gray-400" />
+                            <AiOutlineUpload className="absolute top-3 left-10 w-5 h-5 text-gray-400 group-hover:text-black" />
                             <input
                               type="file"
                               id={`sequence${index}`}
@@ -304,10 +298,10 @@ const SignUp = () => {
                               }
                               className="pl-16 pr-3 py-2 w-full h-[55px] opacity-0 absolute inset-0 z-30 cursor-pointer"
                             />
-                            <div className="pl-16 pr-3 py-2 w-full relative border-[3px] border-transparent hover:border-black z-20 rounded-lg ">
-                              <span className="text-gray-500 font-semibold">
+                            <div className="pl-16 pr-3 py-2 w-full relative border-[3px] border-transparent group-hover:border-green-500 z-40 rounded-lg group-hover:border-dashed group">
+                              <p className="text-gray-500 font-semibold overflow-hidden w-[100%] group-hover:text-black">
                                 {input.value ? input.value.name : "Upload File"}
-                              </span>
+                              </p>
                             </div>
                           </>
                         )}
@@ -358,7 +352,41 @@ const SignUp = () => {
                       )}
                     </div>
                   </div>
-                  <input disabled type={`${constructedPasswordHidden ? "password" : "text"}`} className=" bg-white w-[100%] h-[100%] overflow-wrap whitespace-normal " value={constructedPassword} />
+                  <input
+                    disabled
+                    type={`${constructedPasswordHidden ? "password" : "text"}`}
+                    className=" bg-white w-[100%] h-[100%] overflow-wrap whitespace-normal "
+                    value={constructedPassword}
+                  />
+                </div>
+              </div>
+
+              <div className="w-[400px] flex justify-start align-middle h-[150px] bg-gray-100 m-auto p-2 rounded-[12px] mt-4">
+                <div className="w-[100%] h-[100%] my-auto flex flex-col">
+                  <div className="flex justify-center align-middle">
+                    <div className="flex justify-center align-middle">
+                      <p className="font-medium text-[16px] select-none">
+                        Hashed Password
+                      </p>
+                      {hashPassHidden ? (
+                        <AiOutlineEyeInvisible
+                          className="ml-2 w-4 h-4 hover:cursor-pointer my-auto"
+                          onClick={() => setHashPassHidden(false)}
+                        />
+                      ) : (
+                        <AiOutlineEye
+                          className="ml-2 w-4 h-4 hover:cursor-pointer my-auto"
+                          onClick={() => setHashPassHidden(true)}
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <input
+                    disabled
+                    type={`${hashPassHidden ? "password" : "text"}`}
+                    className=" bg-white w-[100%] h-[100%] overflow-wrap whitespace-normal "
+                    value={hashedPass}
+                  />
                 </div>
               </div>
             </div>
