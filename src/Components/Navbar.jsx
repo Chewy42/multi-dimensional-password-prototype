@@ -22,18 +22,34 @@ function Navbar() {
       <div className="flex items-center justify-end flex-1 space-x-4">
         {location.pathname !== '/signin' && (
           <Link
-            to="/signin"
+            to="/signin-p1"
             className="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded hover:bg-gray-700 transition-all ease-linear duration-150"
           >
-            Sign In
+            Sign In P1
           </Link>
         )}
         {location.pathname !== '/signup' && (
           <Link
-            to="/signup"
+            to="/signup-p1"
             className="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded hover:bg-gray-700 transition-all ease-linear duration-150"
           >
-            Sign Up
+            Sign Up P1
+          </Link>
+        )}
+        {location.pathname !== '/signin-p2' && (
+          <Link
+            to="/signin-p2"
+            className="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded hover:bg-gray-700 transition-all ease-linear duration-150"
+          >
+            Sign In P2
+          </Link>
+        )}
+        {location.pathname !== '/signup-p2' && (
+          <Link
+            to="/signup-p2"
+            className="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded hover:bg-gray-700 transition-all ease-linear duration-150"
+          >
+            Sign Up P2
           </Link>
         )}
       </div>

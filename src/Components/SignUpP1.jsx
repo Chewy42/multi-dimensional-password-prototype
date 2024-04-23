@@ -18,7 +18,7 @@ import AddAnim from "./Anims/add.json";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import axios from "axios";
 
-const SignUp = () => {
+const SignUpP1 = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [passwordSequence, setPasswordSequence] = useState([]);
@@ -471,4 +471,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default SignUpP1;
