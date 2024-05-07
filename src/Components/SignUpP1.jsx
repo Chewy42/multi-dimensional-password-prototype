@@ -17,6 +17,7 @@ import Lottie from "react-lottie";
 import AddAnim from "./Anims/add.json";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import axios from "axios";
+import "./SignUpP1.css";
 
 const SignUpP1 = () => {
   const [name, setName] = useState("");
@@ -34,6 +35,8 @@ const SignUpP1 = () => {
 
   const [hashedPass, setHashedPass] = useState("");
   const [hashPassHidden, setHashPassHidden] = useState(true);
+
+  const [grabbing, setGrabbing] = useState(false);
 
   useEffect(() => {
     constructPassword();
@@ -68,7 +71,6 @@ const SignUpP1 = () => {
     constructHash();
   }, [constructedPassword]);
 
-
   const constructHash = () => {
     let tempHashedPass = "";
     let passLength = constructedPassword.length; // shrink down to 12 characters by finding the length, splitting it into 12 character chunks, and taking the first character of each chunk
@@ -82,15 +84,6 @@ const SignUpP1 = () => {
   };
 
   const addAnimationRef = useRef(null);
-
-  const addAnimOptions = {
-    loop: false,
-    autoplay: false,
-    animationData: AddAnim,
-    rendererSettings: {
-      preserveAspectRatio: "xMidYMid slice",
-    },
-  };
 
   const handleAddToSequence = (type) => {
     setShowAddMenu(false);
@@ -141,6 +134,7 @@ const SignUpP1 = () => {
   };
 
   const moveItem = (startIndex, endIndex) => {
+    console.log("MOVE");
     const result = Array.from(passwordSequence);
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
@@ -156,7 +150,7 @@ const SignUpP1 = () => {
       result = await axios.post("http://localhost:3001/api/auth/signup", {
         name: name,
         email: email,
-        password: constructedPassword,
+        password: hashedPass,
       });
     } catch (error) {
       setErrorMessage("An error occurred during signup. Please try again.");
@@ -165,22 +159,12 @@ const SignUpP1 = () => {
     console.log(result);
   };
 
-  const handleDragStart = (e, index) => {
-    e.dataTransfer.setData("text/plain", index);
-  };
-
-  const handleDrop = (e, index) => {
-    e.preventDefault();
-    const startIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
-    moveItem(startIndex, index);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
   return (
-    <div className="min-h-screen flex flex-col">
+    <div
+      className={`min-h-screen flex flex-col ${
+        grabbing ? ".force-grab-cursor" : ""
+      }`}
+    >
       <Navbar signup={true} />
       {/* CONTAINER THAT CENTERS SIGNUP CONTAINER */}
       <main className="flex-grow bg-[#f0f4f9] relative flex flex-col justify-center align-top">
@@ -193,7 +177,9 @@ const SignUpP1 = () => {
             </div>
           )} */}
           <h2 className="text-3xl font-bold text-center text-primary mb-6 select-none">
-            Multi-Dimensional Authentication Prototype
+            Sign Up
+            <br />
+            Prototype 1
           </h2>
 
           <form onSubmit={handleSignup}>
@@ -247,12 +233,16 @@ const SignUpP1 = () => {
                     <div
                       key={input.id}
                       draggable
-                      onDragStart={(e) =>
-                        e.dataTransfer.setData("text/plain", index)
-                      }
+                      onDragStart={(e) => {
+                        setGrabbing(true);
+                        console.log("GRABBING");
+                        e.dataTransfer.setData("text/plain", index);
+                      }}
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={(e) => {
                         e.preventDefault();
+                        setGrabbing(false);
+                        console.log("STOPPED GRABBING");
                         const startIndex = parseInt(
                           e.dataTransfer.getData("text/plain"),
                           10
@@ -275,8 +265,10 @@ const SignUpP1 = () => {
                       </label>
                       {/* Conditional rendering based on input type */}
                       <div className="relative border rounded-lg shadow-sm w-full group">
-                        <AiOutlineLock className="absolute top-3 left-3 w-5 h-5 text-gray-400 group-hover:text-black" />
+                        <AiOutlineLock className="absolute top-3 left-3 w-5 h-5 text-gray-400 group-hover:text-green-500" />
                         {/* Conditional rendering based on input type */}
+
+                        {/* TEXT */}
                         {input.type === "text" ? (
                           <input
                             type="text"
@@ -284,12 +276,13 @@ const SignUpP1 = () => {
                             onChange={(e) =>
                               handleInputChange(index, e.target.value)
                             }
-                            className="pl-10 pr-3 py-2 w-full h-[45px] border rounded focus:outline-none focus:border-primary select-none hover:cursor-pointer hover:outline "
+                            className="pl-10 pr-3 py-2 w-full h-[45px] max-h-[45px] border-2 group-hover:border-green-500 rounded focus:outline-none select-none hover:cursor-pointer "
                             value={input.value || ""}
                           />
                         ) : (
                           <>
-                            <AiOutlineUpload className="absolute top-3 left-10 w-5 h-5 text-gray-400 group-hover:text-black" />
+                            {/* FILE INPUT */}
+                            <AiOutlineUpload className="absolute top-3 left-10 w-5 h-5 text-gray-400 group-hover:text-green-500" />
                             <input
                               type="file"
                               id={`sequence${index}`}
@@ -298,9 +291,11 @@ const SignUpP1 = () => {
                               }
                               className="pl-16 pr-3 py-2 w-full h-[55px] opacity-0 absolute inset-0 z-40 cursor-pointer border-none"
                             />
-                            <div className="pl-16 pr-3 py-2 w-full relative border-[3px] border-transparent group-hover:border-green-500 z-30 rounded-lg group-hover:border-dashed group">
-                              <p className="text-gray-500 font-semibold overflow-hidden w-[100%] group-hover:text-black">
-                                {input.value ? input.value.name : "Upload File"}
+                            <div className="pl-16 pr-3 py-2 w-full relative border-[3px] border-transparent group-hover:border-green-500 z-30 rounded-lg group-hover:border-dashed group max-h-[45px]">
+                              <p className="text-gray-500 font-medium w-[100%] group-hover:text-black overflow-hidden whitespace-nowrap">
+                                {input.value
+                                  ? input.value.name
+                                  : "Secure File Upload"}
                               </p>
                             </div>
                           </>
@@ -313,23 +308,18 @@ const SignUpP1 = () => {
                     )}
                   </React.Fragment>
                 ))}
-                {/* Add More Password Elements Button */}
                 {passwordSequence.length < 4 && (
                   <div className="flex justify-center w-[75px] h-[75px] p-2 transition-all ease-linear duration-300 my-auto ml-4">
                     <button
                       onClick={handleAddClicked}
-                      className={`flex justify-center items-center w-[100%] h-[100%] rounded-lg transition duration-300 ease-in-out bg-white shadow-lg hover:shadow-2xl border text-gray-800 font-bold hover:bg-green-500 group`}
+                      className={`flex justify-center items-center w-full h-full rounded-lg transition duration-300 ease-in-out shadow-lg hover:shadow-2xl border text-gray-800 font-bold bg-green-500 group`}
                     >
-                      {/* Lottie animation integration for a smoother interaction */}
-                      <p className="mx-auto mb-2 font-medium text-black group-hover:text-white transition-all ease-linear duration-300 text-[40px] text-center">
-                        +
+                      <p className="m-auto font-medium text-white transition-all ease-linear duration-300 text-[20px] text-center">
+                        Add
                       </p>
                     </button>
                   </div>
                 )}
-                <div className="w-min my-auto ml-4">
-                  <p className="text-[42px] font-medium mb-2">=</p>
-                </div>
               </div>
 
               <div className="w-[400px] flex justify-start align-middle h-[150px] bg-gray-100 m-auto p-2 rounded-[12px]">
@@ -391,7 +381,6 @@ const SignUpP1 = () => {
               </div>
             </div>
 
-            {/* Modal Presentation */}
             {showAddMenu && (
               <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
                 <div className="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">

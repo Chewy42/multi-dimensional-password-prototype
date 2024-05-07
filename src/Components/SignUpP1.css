@@ -1,7 +1,3 @@
-.draggable-item {
-  transition: transform 0.5s ease;
-}
-
-.draggable-item.is-dragging {
-  transition: none;
+.force-grab-cursor{
+  cursor: grab !important;
 }

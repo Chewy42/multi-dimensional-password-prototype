@@ -6,12 +6,16 @@ import {
   AiOutlineClose,
   AiOutlinePlus,
   AiOutlineArrowDown,
+  AiOutlineRight,
+  AiOutlineEye,
+  AiOutlineEyeInvisible,
 } from "react-icons/ai";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "./Navbar";
 import Lottie from "react-lottie";
 import AddAnim from "./Anims/add.json";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import axios from "axios";
 
 const SignInP1 = () => {
@@ -20,6 +24,62 @@ const SignInP1 = () => {
   const [passwordSequence, setPasswordSequence] = useState([]);
   const [password, setPassword] = useState("");
   const [showAddMenu, setShowAddMenu] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [showLoadingIcon, setShowLoadingIcon] = useState(false);
+
+  const [constructedPassword, setConstructedPassword] = useState("");
+  const [constructedPasswordHidden, setConstructedPasswordHidden] =
+    useState(true);
+
+  const [hashedPass, setHashedPass] = useState("");
+  const [hashPassHidden, setHashPassHidden] = useState(true);
+
+  useEffect(() => {
+    constructPassword();
+  }, [passwordSequence]);
+
+  const constructPassword = async () => {
+    let concatenatedSequence = "";
+    const readFileAsBase64 = (file) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    for (const element of passwordSequence) {
+      if (element.type === "text" && element.value) {
+        concatenatedSequence += element.value;
+      } else if (element.type === "file" && element.value) {
+        try {
+          const base64String = await readFileAsBase64(element.value);
+          concatenatedSequence += base64String;
+        } catch (error) {
+          console.error("Error reading file:", error);
+          return;
+        }
+      }
+    }
+    setConstructedPassword(concatenatedSequence);
+  };
+
+  useEffect(() => {
+    constructHash();
+  }, [constructedPassword]);
+
+
+  const constructHash = () => {
+    let tempHashedPass = "";
+    let passLength = constructedPassword.length; // shrink down to 12 characters by finding the length, splitting it into 12 character chunks, and taking the first character of each chunk
+    let chunkSize = Math.ceil(passLength / 12);
+
+    for (let i = 0; i < passLength; i += chunkSize) {
+      tempHashedPass += constructedPassword.charAt(i);
+    }
+
+    setHashedPass(tempHashedPass);
+  };
 
   const addAnimationRef = useRef(null);
 
@@ -87,51 +147,23 @@ const SignInP1 = () => {
     setPasswordSequence(result);
   };
 
-  const handleSignup = async (event) => {
+  const handleSignIn = async (event) => {
     event.preventDefault();
-    let concatenatedSequence = "";
 
-    // Helper function to convert file to base64 string
-    const readFileAsBase64 = (file) =>
-      new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-
-    // Process each element in the passwordSequence
-    for (const element of passwordSequence) {
-      if (element.type === "text" && element.value) {
-        concatenatedSequence += element.value;
-      } else if (element.type === "file" && element.value) {
-        try {
-          const base64String = await readFileAsBase64(element.value);
-          concatenatedSequence += base64String;
-        } catch (error) {
-          console.error("Error reading file:", error);
-          return; // Exit the function if file reading fails
-        }
-      }
-    }
-
-    setPassword(concatenatedSequence);
     let result;
-    console.log("Name: ", name);
-    console.log("Email: ", email);
 
     try {
       result = await axios.post("http://localhost:3001/api/auth/signin", {
         email: email,
-        password: concatenatedSequence,
+        password: hashedPass,
       });
     } catch (error) {
+      setErrorMessage("An error occurred during signin. Please try again.");
       console.error(`Error: ${error}`);
     }
-    console.log(result.data);
+    console.log(result);
   };
 
-  // Event handlers
   const handleDragStart = (e, index) => {
     e.dataTransfer.setData("text/plain", index);
   };
@@ -143,7 +175,7 @@ const SignInP1 = () => {
   };
 
   const handleDragOver = (e) => {
-    e.preventDefault(); // Necessary to allow dropping
+    e.preventDefault();
   };
 
   return (
@@ -152,12 +184,12 @@ const SignInP1 = () => {
       {/* CONTAINER THAT CENTERS SIGNUP CONTAINER */}
       <main className="flex-grow bg-[#f0f4f9] relative flex flex-col justify-center align-top">
         {/* SIGNUP CONTAINER */}
-        <div className="mx-auto mt-[150px] mb-auto py-[36px] w-full sm:w-[50%] bg-white rounded-[28px] border-2">
-          <h2 className="text-3xl font-bold text-center text-primary mb-6 select-none">
-            Multi-Dimensional Authentication Prototype
+        <div className="mx-auto mt-[150px] mb-auto py-[36px] w-full sm:w-[70%] bg-white rounded-[28px] border-2">
+        <h2 className="text-3xl font-bold text-center text-primary mb-6 select-none">
+          Sign In<br />Prototype 1
           </h2>
 
-          <form onSubmit={handleSignup}>
+          <form onSubmit={handleSignIn}>
 
             <div className="mb-4 relative w-[50%] mx-auto">
               <label
@@ -182,97 +214,155 @@ const SignInP1 = () => {
             </p>
             {/* Password Sequence Section */}
 
-            <div className="flex flex-col justify-center align-middle px-4">
-              {passwordSequence.map((input, index) => (
-                <React.Fragment key={input.id}>
-                  <div
-                    key={input.id}
-                    draggable
-                    onDragStart={(e) =>
-                      e.dataTransfer.setData("text/plain", index)
-                    }
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      const startIndex = parseInt(
-                        e.dataTransfer.getData("text/plain"),
-                        10
-                      );
-                      moveItem(startIndex, index);
-                    }}
-                    className="relative flex flex-col items-center w-full md:w-1/2 p-2 border rounded-lg shadow-sm my-4 mx-auto"
-                  >
-                    <button
-                      onClick={() => handleDeleteSequence(index)}
-                      className="absolute top-0 left-0 m-2 text-red-500 hover:text-red-700"
+            <div className="">
+              <div className="flex justify-start align-middle h-[150px] bg-gray-100 m-4 p-2 rounded-[12px]">
+                {passwordSequence.map((input, index) => (
+                  <React.Fragment key={input.id}>
+                    <div
+                      key={input.id}
+                      draggable
+                      onDragStart={(e) =>
+                        e.dataTransfer.setData("text/plain", index)
+                      }
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        const startIndex = parseInt(
+                          e.dataTransfer.getData("text/plain"),
+                          10
+                        );
+                        moveItem(startIndex, index);
+                      }}
+                      className="relative flex flex-col justify-start items-center w-full md:w-[240px] md:min-w-[240px] p-2 border rounded-lg shadow-lg my-4 bg-white hover:shadow-2xl transition-all ease-linear duration-300 hover:cursor-pointer group hover:scale-[101.5%]"
                     >
-                      <AiOutlineClose className="w-6 h-6" />
-                    </button>
-                    <label
-                      htmlFor={`sequence${index}`}
-                      className="block text-primary font-semibold mb-2 select-none"
-                    >
-                      Sequence Password {index + 1}
-                    </label>
-                    {/* Conditional rendering based on input type */}
-                    <div className="relative border rounded-lg shadow-sm w-full">
-                      <AiOutlineLock className="absolute top-3 left-3 w-5 h-5 text-gray-400" />
+                      <button
+                        onClick={() => handleDeleteSequence(index)}
+                        className="absolute top-0 left-0 m-2 text-red-500 hover:text-red-700"
+                      >
+                        <AiOutlineClose className="w-6 h-6" />
+                      </button>
+                      <label
+                        htmlFor={`sequence${index}_xx`}
+                        className="block text-primary font-semibold mb-2 select-none"
+                      >
+                        Sequence Password {index + 1}
+                      </label>
                       {/* Conditional rendering based on input type */}
-                      {input.type === "text" ? (
-                        <input
-                          type="text"
-                          id={`sequence${index}`}
-                          onChange={(e) =>
-                            handleInputChange(index, e.target.value)
-                          }
-                          className="pl-10 pr-3 py-2 w-full border rounded focus:outline-none focus:border-primary"
-                          value={input.value || ""}
-                        />
-                      ) : (
-                        <>
-                          <AiOutlineUpload className="absolute top-3 left-10 w-5 h-5 text-gray-400" />
+                      <div className="relative border rounded-lg shadow-sm w-full group">
+                        <AiOutlineLock className="absolute top-3 left-3 w-5 h-5 text-gray-400 group-hover:text-black" />
+                        {/* Conditional rendering based on input type */}
+                        {input.type === "text" ? (
                           <input
-                            type="file"
+                            type="text"
                             id={`sequence${index}`}
                             onChange={(e) =>
-                              handleInputChange(index, e.target.files[0])
+                              handleInputChange(index, e.target.value)
                             }
-                            className="pl-16 pr-3 py-2 w-full opacity-0 absolute inset-0 z-10 cursor-pointer"
+                            className="pl-10 pr-3 py-2 w-full h-[45px] border rounded focus:outline-none focus:border-primary select-none hover:cursor-pointer hover:outline "
+                            value={input.value || ""}
                           />
-                          <div className="pl-16 pr-3 py-2 w-full relative z-0">
-                            <span className="text-gray-500 font-semibold">
-                              {input.value ? input.value.name : "Upload File"}
-                            </span>
-                          </div>
-                        </>
+                        ) : (
+                          <>
+                            <AiOutlineUpload className="absolute top-3 left-10 w-5 h-5 text-gray-400 group-hover:text-black" />
+                            <input
+                              type="file"
+                              id={`sequence${index}`}
+                              onChange={(e) =>
+                                handleInputChange(index, e.target.files[0])
+                              }
+                              className="pl-16 pr-3 py-2 w-full h-[55px] opacity-0 absolute inset-0 z-40 cursor-pointer border-none"
+                            />
+                            <div className="pl-16 pr-3 py-2 w-full relative border-[3px] border-transparent group-hover:border-green-500 z-30 rounded-lg group-hover:border-dashed group">
+                              <p className="text-gray-500 font-semibold overflow-hidden w-[100%] group-hover:text-black">
+                                {input.value ? input.value.name : "Upload File"}
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {index < passwordSequence.length - 1 && (
+                      <AiOutlinePlus className="mx-2 my-auto" />
+                    )}
+                  </React.Fragment>
+                ))}
+                {/* Add More Password Elements Button */}
+                {passwordSequence.length < 4 && (
+                  <div className="flex justify-center w-[75px] h-[75px] p-2 transition-all ease-linear duration-300 my-auto ml-4">
+                    <button
+                      onClick={handleAddClicked}
+                      className={`flex justify-center items-center w-full h-full rounded-lg transition duration-300 ease-in-out shadow-lg hover:shadow-2xl border text-gray-800 font-bold bg-green-500 group`}
+                    >
+                      <p className="m-auto font-medium text-white transition-all ease-linear duration-300 text-[20px] text-center">
+                        Add
+                      </p>
+                    </button>
+                  </div>
+                )}
+           
+              </div>
+
+              <div className="w-[400px] flex justify-start align-middle h-[150px] bg-gray-100 m-auto p-2 rounded-[12px]">
+                <div className="w-[100%] h-[100%] my-auto flex flex-col">
+                  <div className="flex justify-center align-middle">
+                    <div className="flex justify-center align-middle">
+                      <p className="font-medium text-[16px] select-none">
+                        Your Password
+                      </p>
+                      {constructedPasswordHidden ? (
+                        <AiOutlineEyeInvisible
+                          className="ml-2 w-4 h-4 hover:cursor-pointer my-auto"
+                          onClick={() => setConstructedPasswordHidden(false)}
+                        />
+                      ) : (
+                        <AiOutlineEye
+                          className="ml-2 w-4 h-4 hover:cursor-pointer my-auto"
+                          onClick={() => setConstructedPasswordHidden(true)}
+                        />
                       )}
                     </div>
                   </div>
-                  {index < passwordSequence.length - 1 && (
-                    <AiOutlineArrowDown className="w-6 h-6 mx-auto my-0" />
-                  )}
-                </React.Fragment>
-              ))}
+                  <input
+                    disabled
+                    type={`${constructedPasswordHidden ? "password" : "text"}`}
+                    className=" bg-white w-[100%] h-[100%] overflow-wrap whitespace-normal "
+                    value={constructedPassword}
+                  />
+                </div>
+              </div>
+
+              <div className="w-[400px] flex justify-start align-middle h-[150px] bg-gray-100 m-auto p-2 rounded-[12px] my-4">
+                <div className="w-[100%] h-[100%] my-auto flex flex-col">
+                  <div className="flex justify-center align-middle">
+                    <div className="flex justify-center align-middle">
+                      <p className="font-medium text-[16px] select-none">
+                        Hashed Password
+                      </p>
+                      {hashPassHidden ? (
+                        <AiOutlineEyeInvisible
+                          className="ml-2 w-4 h-4 hover:cursor-pointer my-auto"
+                          onClick={() => setHashPassHidden(false)}
+                        />
+                      ) : (
+                        <AiOutlineEye
+                          className="ml-2 w-4 h-4 hover:cursor-pointer my-auto"
+                          onClick={() => setHashPassHidden(true)}
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <input
+                    disabled
+                    type={`${hashPassHidden ? "password" : "text"}`}
+                    className=" bg-white w-[100%] h-[100%] overflow-wrap whitespace-normal "
+                    value={hashedPass}
+                  />
+                </div>
+              </div>
             </div>
 
-            {/* Add More Password Elements Button */}
-            {passwordSequence.length < 4 && (
-              <div className="flex justify-center w-full px-4 pb-4 transition-all ease-linear duration-300">
-                <button
-                  onClick={handleAddClicked}
-                  className={`flex justify-center items-center w-[50%] h-10 rounded-lg transition duration-300 ease-in-out bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold`}
-                >
-                  {/* Lottie animation integration for a smoother interaction */}
-                  <Lottie
-                    ref={addAnimationRef}
-                    options={addAnimOptions}
-                    height={40}
-                    width={40}
-                    onClick={() => handleAddAnimation()}
-                  />
-                </button>
-              </div>
-            )}
+
 
             {/* Modal Presentation */}
             {showAddMenu && (
